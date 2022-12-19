@@ -1,6 +1,13 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 
+const State = {
+  LoadingImage: 'LoadingImage',
+  WillTransitionIn: 'WillTransitionIn',
+  RequestTransitionOut: 'RequestTransitionOut',
+  WillTransitionOut: 'WillTransitionOut',
+};
+
 const Game = () => {
   return (
     <View>
