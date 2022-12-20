@@ -6,11 +6,12 @@ import {
   LayoutAnimation,
   Button,
   Image,
+  Animated,
 } from 'react-native';
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import PropTypes from 'prop-types';
 import {Toggle} from '../components';
-import {sleep} from '../utils';
+import {configureTransition, sleep} from '../utils';
 
 //enable layout animation
 if (
@@ -34,20 +35,29 @@ const BOARD_SIZES = [3, 4, 5, 6];
 const Start = ({size, onChangeSize}) => {
   const [transitionState, setStateTransition] = useState(State.Launching);
 
+  const animate = useRef(new Animated.Value(0)).current;
   const handleAnimation = async () => {
     await sleep(500);
-    const animation = LayoutAnimation.create(
-      750,
-      LayoutAnimation.Types.easeInEaseOut,
-      LayoutAnimation.Properties.opacity,
-    );
-    LayoutAnimation.configureNext(animation);
-    setStateTransition(State.WillTransitionIn);
+    configureTransition(() => setStateTransition(State.WillTransitionIn));
   };
 
   useEffect(() => {
     handleAnimation();
+    Animated.timing(animate, {
+      toValue: 1,
+      duration: 500,
+      delay: 500,
+      useNativeDriver: true,
+    }).start();
+    Animated.timing(animate, {
+      toValue: 1,
+      duration: 500,
+      delay: 1000,
+      useNativeDriver: true,
+    }).start();
   }, []);
+
+  const fadeInStyle = {opacity: animate};
 
   return (
     <View style={styles.container}>
@@ -55,14 +65,14 @@ const Start = ({size, onChangeSize}) => {
         <Image source={require('../assets/logo.png')} />
       </View>
       {transitionState !== State.Launching && (
-        <View>
+        <Animated.View style={[fadeInStyle, styles.btns]}>
           <Toggle options={BOARD_SIZES} value={size} onChange={onChangeSize} />
-        </View>
+        </Animated.View>
       )}
       {transitionState !== State.Launching && (
-        <View>
+        <Animated.View style={fadeInStyle}>
           <Button title={`Start Game`} onPress={() => {}} />
-        </View>
+        </Animated.View>
       )}
     </View>
   );
@@ -82,6 +92,12 @@ const styles = StyleSheet.create({
   logo: {
     alignSelf: 'stretch',
     paddingHorizontal: 40,
+  },
+  btns: {
+    flex: 1,
+    flexWrap: 'wrap',
+    backgroundColor: 'green',
+    height: 200,
   },
 });
 

@@ -1,3 +1,3 @@
 import sleep from './sleep';
-
-export {sleep};
+import configureTransition from './configureTransition';
+export {sleep, configureTransition};
