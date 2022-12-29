@@ -7,6 +7,7 @@ import {
   Button,
   Image,
   Animated,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import {useState, useEffect, useRef} from 'react';
 import PropTypes from 'prop-types';
@@ -32,7 +33,16 @@ const State = {
 
 const BOARD_SIZES = [3, 4, 5, 6];
 
-const Start = ({size, onChangeSize}) => {
+const Start = ({
+  size,
+  onChangeSize,
+  title,
+  onPress,
+  color,
+  height,
+  borderRadius,
+  fontSize,
+}) => {
   const [transitionState, setStateTransition] = useState(State.Launching);
 
   const animate = useRef(new Animated.Value(0)).current;
@@ -96,8 +106,6 @@ const styles = StyleSheet.create({
   btns: {
     flex: 1,
     flexWrap: 'wrap',
-    backgroundColor: 'green',
-    height: 200,
   },
 });
 
