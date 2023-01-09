@@ -1,14 +1,12 @@
 import {
-  StyleSheet,
   Animated,
-  Text,
-  View,
-  TouchableOpacity,
-  Button,
+  ColorPropType,
   Easing,
+  StyleSheet,
   TouchableWithoutFeedback,
 } from 'react-native';
-import React, {useState, useRef, useEffect, useCallback} from 'react';
+import PropTypes from 'prop-types';
+import React, {useRef, useState} from 'react';
 
 const getValue = (pressed, disabled) => {
   const base = disabled ? 0.5 : 1;
@@ -17,50 +15,81 @@ const getValue = (pressed, disabled) => {
   return pressed ? base - delta : base;
 };
 
-const CustomButton = ({value, disabled, onClick}) => {
+const Button = ({
+  title,
+  onPress,
+  disabled = false,
+  height = null,
+  color = '#0CE1C2',
+  fontSize = 24,
+  borderRadius = 100,
+}) => {
+  const value = useRef(new Animated.Value(getValue(false, disabled))).current;
   const [pressed, setPressed] = useState(false);
-  const animateButton = useRef(
-    new Animated.Value(getValue(false, disabled)),
-  ).current;
-  //----
 
-  const updateValue = useCallback(() => {
-    Animated.timing(animateButton, {
+  const updateValue = () => {
+    Animated.timing(value, {
       duration: 200,
       toValue: getValue(pressed, disabled),
       easing: Easing.out(Easing.quad),
     }).start();
-  }, [pressed, disabled]);
-  //wvwry time the component will update by props or state
-  useEffect(() => {
-    updateValue();
-  }, [pressed, disabled]);
+  };
 
-  useEffect(() => {
-    updateValue();
-  }, [pressed, disabled]);
+  React.useEffect(updateValue, [disabled, pressed]);
 
-  //handle
   const handlePressIn = () => {
     setPressed(true);
   };
+
   const handlePressOut = () => {
     setPressed(false);
   };
 
+  const animatedColor = value.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['black', color],
+  });
+
+  const animatedScale = value.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.8, 1],
+  });
+
+  const containerStyle = {
+    borderColor: animatedColor,
+    borderRadius,
+    height,
+    transform: [{scale: animatedScale}],
+  };
+
+  const titleStyle = {
+    color: animatedColor,
+    fontSize,
+  };
+
   return (
     <TouchableWithoutFeedback
-      onPress={onClick}
+      onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}>
-      <Animated.View style={[styles.container]}>
-        <Animated.Text style={[styles.title]}>{value}</Animated.Text>
+      <Animated.View style={[styles.container, containerStyle]}>
+        <Animated.Text style={[styles.title, titleStyle]}>
+          {title}
+        </Animated.Text>
       </Animated.View>
     </TouchableWithoutFeedback>
   );
 };
 
-export default CustomButton;
+Button.propTypes = {
+  title: PropTypes.string.isRequired,
+  onPress: PropTypes.func,
+  disabled: PropTypes.bool,
+  height: PropTypes.number,
+  color: ColorPropType,
+  fontSize: PropTypes.number,
+  borderRadius: PropTypes.number,
+};
 
 const styles = StyleSheet.create({
   container: {
